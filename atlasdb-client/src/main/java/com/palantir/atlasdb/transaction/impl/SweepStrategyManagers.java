@@ -27,9 +27,9 @@ import com.palantir.atlasdb.table.description.SweepStrategy;
 import com.palantir.atlasdb.table.description.TableMetadata;
 import com.palantir.logsafe.Preconditions;
 import com.palantir.logsafe.SafeArg;
+import java.time.Duration;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 public final class SweepStrategyManagers {
     private SweepStrategyManagers() {
@@ -42,7 +42,7 @@ public final class SweepStrategyManagers {
                 RecomputingSupplier.create(() -> {
                     // On a cache miss, load metadata only for the relevant table. Helpful when many dynamic tables.
                     LoadingCache<TableReference, SweepStrategy> cache = Caffeine.newBuilder()
-                            .expireAfterAccess(1, TimeUnit.DAYS)
+                            .expireAfterAccess(Duration.ofDays(1))
                             .build(tableRef -> getSweepStrategy(kvs.getMetadataForTable(tableRef)));
 
                     // On async initialization, add all tables to optimize for cases when using mostly non-dynamic
